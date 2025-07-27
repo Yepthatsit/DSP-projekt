@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'audio_visualizerfpSPhH.ui'
+## Form generated from reading UI file 'audio_visualizerRzeFRa.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -32,6 +32,12 @@ class Ui_Wizualizator_audio(object):
         self.textBrowser = QTextBrowser(self.centralwidget)
         self.textBrowser.setObjectName(u"textBrowser")
         self.textBrowser.setGeometry(QRect(190, 10, 221, 31))
+        self.pushButton = QPushButton(self.centralwidget)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setGeometry(QRect(710, 0, 75, 24))
+        self.pushButton_2 = QPushButton(self.centralwidget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+        self.pushButton_2.setGeometry(QRect(800, 0, 75, 24))
         Wizualizator_audio.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(Wizualizator_audio)
         self.menubar.setObjectName(u"menubar")
@@ -60,5 +66,7 @@ class Ui_Wizualizator_audio(object):
 "li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Otwarty plik: brak</p></body></html>", None))
+        self.pushButton.setText(QCoreApplication.translate("Wizualizator_audio", u"Start", None))
+        self.pushButton_2.setText(QCoreApplication.translate("Wizualizator_audio", u"Stop", None))
     # retranslateUi
 

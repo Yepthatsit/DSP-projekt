@@ -11,5 +11,7 @@ if __name__ == "__main__":
     ui.setupUi(Wizualizator_audio)
     appService = AppFunctionService(ui)
     ui.openFileBTN.clicked.connect(appService.readFile)
+    ui.pushButton.clicked.connect(appService.visualizeAndPlayAudio)
+    ui.pushButton_2.clicked.connect(appService.PauseButtonClicked)
     Wizualizator_audio.show()
     sys.exit(app.exec())
