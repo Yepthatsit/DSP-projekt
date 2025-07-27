@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'audio_visualizerRzeFRa.ui'
+## Form generated from reading UI file 'audio_visualizerbFYcaC.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -22,7 +22,7 @@ class Ui_Wizualizator_audio(object):
     def setupUi(self, Wizualizator_audio):
         if not Wizualizator_audio.objectName():
             Wizualizator_audio.setObjectName(u"Wizualizator_audio")
-        Wizualizator_audio.resize(891, 531)
+        Wizualizator_audio.resize(884, 109)
         Wizualizator_audio.setAutoFillBackground(False)
         self.centralwidget = QWidget(Wizualizator_audio)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -32,16 +32,19 @@ class Ui_Wizualizator_audio(object):
         self.textBrowser = QTextBrowser(self.centralwidget)
         self.textBrowser.setObjectName(u"textBrowser")
         self.textBrowser.setGeometry(QRect(190, 10, 221, 31))
-        self.pushButton = QPushButton(self.centralwidget)
-        self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(710, 0, 75, 24))
-        self.pushButton_2 = QPushButton(self.centralwidget)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-        self.pushButton_2.setGeometry(QRect(800, 0, 75, 24))
+        self.StartBTN = QPushButton(self.centralwidget)
+        self.StartBTN.setObjectName(u"StartBTN")
+        self.StartBTN.setGeometry(QRect(640, 0, 75, 24))
+        self.PRBTN = QPushButton(self.centralwidget)
+        self.PRBTN.setObjectName(u"PRBTN")
+        self.PRBTN.setGeometry(QRect(720, 0, 75, 24))
+        self.CancelBTN = QPushButton(self.centralwidget)
+        self.CancelBTN.setObjectName(u"CancelBTN")
+        self.CancelBTN.setGeometry(QRect(800, 0, 75, 24))
         Wizualizator_audio.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(Wizualizator_audio)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 891, 33))
+        self.menubar.setGeometry(QRect(0, 0, 884, 33))
         Wizualizator_audio.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(Wizualizator_audio)
         self.statusbar.setObjectName(u"statusbar")
@@ -66,7 +69,8 @@ class Ui_Wizualizator_audio(object):
 "li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Otwarty plik: brak</p></body></html>", None))
-        self.pushButton.setText(QCoreApplication.translate("Wizualizator_audio", u"Start", None))
-        self.pushButton_2.setText(QCoreApplication.translate("Wizualizator_audio", u"Stop", None))
+        self.StartBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Start", None))
+        self.PRBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Stop", None))
+        self.CancelBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Anuluj", None))
     # retranslateUi
 

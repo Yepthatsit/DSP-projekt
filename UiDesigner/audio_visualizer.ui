@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>891</width>
-    <height>531</height>
+    <width>884</width>
+    <height>109</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,10 +53,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Otwarty plik: brak&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="StartBTN">
     <property name="geometry">
      <rect>
-      <x>710</x>
+      <x>640</x>
       <y>0</y>
       <width>75</width>
       <height>24</height>
@@ -66,10 +66,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string>Start</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="PRBTN">
     <property name="geometry">
      <rect>
-      <x>800</x>
+      <x>720</x>
       <y>0</y>
       <width>75</width>
       <height>24</height>
@@ -79,13 +79,26 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string>Stop</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="CancelBTN">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>0</y>
+      <width>75</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Anuluj</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>891</width>
+     <width>884</width>
      <height>33</height>
     </rect>
    </property>
