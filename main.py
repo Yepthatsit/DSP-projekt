@@ -4,13 +4,12 @@ from AppFunction import AppFunctionService
 import sys
 
 
-if __name__ == "__main__":
-    appService = AppFunctionService()
-        
+if __name__ == "__main__":    
     app = QApplication(sys.argv)
     Wizualizator_audio = QMainWindow()
     ui = Ui_Wizualizator_audio()
     ui.setupUi(Wizualizator_audio)
-    ui.openFileBTN.clicked.connect(lambda : appService.readFile(ui))
+    appService = AppFunctionService(ui)
+    ui.openFileBTN.clicked.connect(appService.readFile)
     Wizualizator_audio.show()
     sys.exit(app.exec())
