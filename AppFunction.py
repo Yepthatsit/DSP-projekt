@@ -2,19 +2,22 @@ import asyncio
 from PyQt6.QtWidgets import QFileDialog
 import audioread
 import matplotlib.pyplot as plt
+import matplotlib
 from matplotlib.animation import FuncAnimation
 from Interface import Ui_Wizualizator_audio
 import numpy as np
+from numba import njit
 class AppFunctionService:
     def __init__(self,ui:Ui_Wizualizator_audio = None):
         self.SelectedFilePath = ""
         self.SampleRate = 0
-        self.FileBytes = []
-        self.frameSize = 1024
+        self.audio_data = np.array([])
+        self.frameSize = 512
         self.ui = ui
         self.paused = False
         self.fig1 = plt.figure()
         self.ax1 = self.fig1.add_subplot(111)
+        self.numFramesPlottedInPlot1 = 200
         
     def readFile(self):
         print("Reading file...")
@@ -26,12 +29,14 @@ class AppFunctionService:
         )
         if filepath:
             self.SelectedFilePath = filepath
-            self.FileBytes = []
+            self.audio_data = []
             self.SampleRate = 0
             if(filepath.endswith('.wav')):
                 with audioread.audio_open(filepath) as audio_file:
                     self.SampleRate = audio_file.samplerate
-                    self.FileBytes = b''.join(audio_file.read_data(-1))
+                    FileBytes = b''.join(audio_file.read_data(-1))
+                    self.audio_data = np.frombuffer(FileBytes, dtype=np.int16)
+                    self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
             elif(filepath.endswith('.mp3')):
                 print("MP3 files are not supported yet.")
             if(self.ui):
@@ -39,39 +44,50 @@ class AppFunctionService:
             print(f"File {self.SelectedFilePath} loaded with sample rate {self.SampleRate} Hz.")
         else:
             print("No file selected.")
+            
     def animateAndPlayAudio(self, i):
-        if not self.FileBytes or self.paused:
+        if not self.audio_data.any():
             return
-    
-        # Convert bytes to numpy array once
-        if not hasattr(self, 'audio_data'):
-            self.audio_data = np.frombuffer(self.FileBytes, dtype=np.int16)
-            self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
-            self.current_frame = 0
-
         start = self.current_frame
-        end = start + self.frameSize
-
+        end = start + self.numFramesPlottedInPlot1*self.frameSize
         if start >= len(self.audio_data):
-            return  # stop condition
-
+            return  
         chunk_data = self.audio_data[start:end]
         chunk_time = self.time_axis[start:end]
-
-        self.ax1.clear()
-        self.ax1.plot(chunk_time, chunk_data)
-        self.ax1.set_xlabel('Time [s]')
-        self.ax1.set_ylabel('Amplitude')
-        self.ax1.set_title('Audio Signal Visualization')
-
+        self.line1.set_data(chunk_time, chunk_data)
+        self.ax1.relim()
+        self.ax1.autoscale_view()
         self.current_frame += self.frameSize
+        return self.line1,
             
     def PauseButtonClicked(self):
         self.paused = not self.paused
         if self.paused:
             print("Playback paused.")
+            self.anim.event_source.stop()
+            self.ui.PRBTN.setText("Odtwarzaj")
         else:
+            self.anim.event_source.start()
+            self.ui.PRBTN.setText("Pauza")
             print("Playback resumed.")
     def visualizeAndPlayAudio(self):
-        self.anim = FuncAnimation(self.fig1, self.animateAndPlayAudio, interval=1000)
-        plt.show()
+        matplotlib.use("QtAgg")
+        if not self.SelectedFilePath:
+            print("No file selected. Please select a file first.")
+            return
+        if not self.audio_data.any():
+            print("No audio data loaded. Please load a file first.")
+            return
+        self.paused = False
+        self.ui.PRBTN.setText("Pauza")
+        if(self.fig1 is not None):
+            plt.close(self.fig1)
+        self.fig1 = plt.figure()
+        self.ax1 = self.fig1.add_subplot(111)
+        self.ax1.set_xlabel('Time [s]')
+        self.ax1.set_ylabel('Amplitude')
+        self.ax1.set_title('Audio Signal Visualization')
+        self.line1, = self.ax1.plot([], [], lw=2)
+        self.current_frame = 0
+        self.anim = FuncAnimation(self.fig1, self.animateAndPlayAudio, interval=self.frameSize*1000 / self.SampleRate, blit=True)#w ms
+        self.fig1.show()
