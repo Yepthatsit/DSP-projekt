@@ -12,12 +12,12 @@ class AppFunctionService:
         self.SelectedFilePath = ""
         self.SampleRate = 0
         self.audio_data = np.array([])
-        self.frameSize = 4096
+        self.frameSize = 1024
         self.ui = ui
         self.paused = False
         self.fig1 = plt.figure()
         self.ax1 = self.fig1.add_subplot(111)
-        self.numFramesPlottedInPlot1 = 100
+        self.numFramesPlottedInPlot1 = 200
         self.stream = None
         
     def readFile(self):
@@ -35,7 +35,7 @@ class AppFunctionService:
             if(filepath.endswith('.wav')):
                 with audioread.audio_open(filepath) as audio_file:
                     self.SampleRate = audio_file.samplerate
-                    FileBytes =bytes(self.numFramesPlottedInPlot1*self.frameSize) + b''.join(audio_file.read_data(-1))
+                    FileBytes = bytes(self.numFramesPlottedInPlot1*self.frameSize) + b''.join(audio_file.read_data(-1))
                     self.audio_data = np.frombuffer(FileBytes, dtype=np.int16)
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
             elif(filepath.endswith('.mp3')):
@@ -45,27 +45,43 @@ class AppFunctionService:
             print(f"File {self.SelectedFilePath} loaded with sample rate {self.SampleRate} Hz.")
         else:
             print("No file selected.")
-            
+        
     def animateAndPlayAudio(self, i):
         if not self.audio_data.any():
             return self.line1,
+        if i == 0:
+            global x
+            global y
+            x = list(self.time_axis[:self.numFramesPlottedInPlot1*self.frameSize:10])
+            y = list(self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:10])
+            self.line1.set_data(x, y)
+            self.current_frame = self.numFramesPlottedInPlot1 * self.frameSize
+            global max_points
+            max_points = int(self.numFramesPlottedInPlot1 * self.frameSize / 10)
+            return self.line1,
         start = self.current_frame
-        end = start + self.numFramesPlottedInPlot1*self.frameSize
+        end = start + self.frameSize
         if end >= len(self.audio_data):
             self.anim.event_source.stop()
             print("End of audio data reached.")
         chunk_data = self.audio_data[start:end]
         chunk_time = self.time_axis[start:end]
+        x.extend(list(chunk_time[::10]))
+        y.extend(list(chunk_data[::10]))
+        x = x[-max_points:]  
+        y = y[-max_points:]  
+        
         #sd.play(chunk_data[-self.frameSize:], self.SampleRate)
         self.stream.write(chunk_data[-self.frameSize:])
-        self.line1.set_data(chunk_time, chunk_data)
-        #self.ax1.relim()
-        #elf.ax1.autoscale_view()
+        self.line1.set_data(x, y)
         self.current_frame += self.frameSize
         return self.line1,
             
     def PauseButtonClicked(self):
         self.paused = not self.paused
+        if not hasattr(self, 'anim'):
+            print("Animation not started yet.")
+            return
         if self.paused:
             print("Playback paused.")
             self.anim.event_source.stop()
@@ -91,9 +107,11 @@ class AppFunctionService:
         self.ax1.set_xlabel('Time [s]')
         self.ax1.set_ylabel('Amplitude')
         self.ax1.set_title('Audio Signal Visualization')
+        self.ax1.set_xlim(0, len(self.audio_data) / self.SampleRate)
+        self.ax1.set_ylim(np.min(self.audio_data), np.max(self.audio_data))
         self.line1, = self.ax1.plot([], [], lw=2)
         self.current_frame = 0
         self.stream = sd.OutputStream(samplerate=self.SampleRate, channels=1, dtype='int16')
         self.stream.start()
-        self.anim = FuncAnimation(self.fig1, self.animateAndPlayAudio, interval=self.frameSize*1000 / self.SampleRate, blit=True)#w ms
+        self.anim = FuncAnimation(self.fig1, self.animateAndPlayAudio, interval=1000/ self.SampleRate, blit=True)#w ms
         self.fig1.show()
