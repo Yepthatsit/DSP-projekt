@@ -1,4 +1,4 @@
-import asyncio
+import sounddevice as sd
 from PyQt6.QtWidgets import QFileDialog
 import audioread
 import matplotlib.pyplot as plt
@@ -6,18 +6,19 @@ import matplotlib
 from matplotlib.animation import FuncAnimation
 from Interface import Ui_Wizualizator_audio
 import numpy as np
-from numba import njit
+
 class AppFunctionService:
     def __init__(self,ui:Ui_Wizualizator_audio = None):
         self.SelectedFilePath = ""
         self.SampleRate = 0
         self.audio_data = np.array([])
-        self.frameSize = 512
+        self.frameSize = 4096
         self.ui = ui
         self.paused = False
         self.fig1 = plt.figure()
         self.ax1 = self.fig1.add_subplot(111)
-        self.numFramesPlottedInPlot1 = 200
+        self.numFramesPlottedInPlot1 = 100
+        self.stream = None
         
     def readFile(self):
         print("Reading file...")
@@ -34,7 +35,7 @@ class AppFunctionService:
             if(filepath.endswith('.wav')):
                 with audioread.audio_open(filepath) as audio_file:
                     self.SampleRate = audio_file.samplerate
-                    FileBytes = b''.join(audio_file.read_data(-1))
+                    FileBytes =bytes(self.numFramesPlottedInPlot1*self.frameSize) + b''.join(audio_file.read_data(-1))
                     self.audio_data = np.frombuffer(FileBytes, dtype=np.int16)
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
             elif(filepath.endswith('.mp3')):
@@ -47,16 +48,19 @@ class AppFunctionService:
             
     def animateAndPlayAudio(self, i):
         if not self.audio_data.any():
-            return
+            return self.line1,
         start = self.current_frame
         end = start + self.numFramesPlottedInPlot1*self.frameSize
-        if start >= len(self.audio_data):
-            return  
+        if end >= len(self.audio_data):
+            self.anim.event_source.stop()
+            print("End of audio data reached.")
         chunk_data = self.audio_data[start:end]
         chunk_time = self.time_axis[start:end]
+        #sd.play(chunk_data[-self.frameSize:], self.SampleRate)
+        self.stream.write(chunk_data[-self.frameSize:])
         self.line1.set_data(chunk_time, chunk_data)
-        self.ax1.relim()
-        self.ax1.autoscale_view()
+        #self.ax1.relim()
+        #elf.ax1.autoscale_view()
         self.current_frame += self.frameSize
         return self.line1,
             
@@ -89,5 +93,7 @@ class AppFunctionService:
         self.ax1.set_title('Audio Signal Visualization')
         self.line1, = self.ax1.plot([], [], lw=2)
         self.current_frame = 0
+        self.stream = sd.OutputStream(samplerate=self.SampleRate, channels=1, dtype='int16')
+        self.stream.start()
         self.anim = FuncAnimation(self.fig1, self.animateAndPlayAudio, interval=self.frameSize*1000 / self.SampleRate, blit=True)#w ms
         self.fig1.show()
