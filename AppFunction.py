@@ -17,7 +17,7 @@ class AppFunctionService:
         self.paused = False
         self.fig1 = plt.figure()
         self.ax1 = self.fig1.add_subplot(111)
-        self.numFramesPlottedInPlot1 = 200
+        self.numFramesPlottedInPlot1 = 100
         self.stream = None
         
     def readFile(self):
@@ -35,7 +35,7 @@ class AppFunctionService:
             if(filepath.endswith('.wav')):
                 with audioread.audio_open(filepath) as audio_file:
                     self.SampleRate = audio_file.samplerate
-                    FileBytes = bytes(self.numFramesPlottedInPlot1*self.frameSize) + b''.join(audio_file.read_data(-1))
+                    FileBytes = bytes(int(2.5*self.numFramesPlottedInPlot1*self.frameSize)) + b''.join(audio_file.read_data(-1))
                     self.audio_data = np.frombuffer(FileBytes, dtype=np.int16)
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
             elif(filepath.endswith('.mp3')):
@@ -74,6 +74,7 @@ class AppFunctionService:
         #sd.play(chunk_data[-self.frameSize:], self.SampleRate)
         self.stream.write(chunk_data[-self.frameSize:])
         self.line1.set_data(x, y)
+        self.ax1.set_xlim(x[0], x[-1])
         self.current_frame += self.frameSize
         return self.line1,
             
@@ -84,14 +85,22 @@ class AppFunctionService:
             return
         if self.paused:
             print("Playback paused.")
+            fade = np.zeros(256, dtype='int16')
+            self.stream.write(fade)
+            self.stream.stop()
             self.anim.event_source.stop()
             self.ui.PRBTN.setText("Odtwarzaj")
         else:
+            self.stream.start()
+            fade = np.zeros(256, dtype='int16')
+            self.stream.write(fade)
             self.anim.event_source.start()
             self.ui.PRBTN.setText("Pauza")
             print("Playback resumed.")
     def visualizeAndPlayAudio(self):
         matplotlib.use("QtAgg")
+        matplotlib.rcParams['toolbar'] = 'None'
+        
         if not self.SelectedFilePath:
             print("No file selected. Please select a file first.")
             return
@@ -109,7 +118,9 @@ class AppFunctionService:
         self.ax1.set_title('Audio Signal Visualization')
         self.ax1.set_xlim(0, len(self.audio_data) / self.SampleRate)
         self.ax1.set_ylim(np.min(self.audio_data), np.max(self.audio_data))
+        self.ax1.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
         self.line1, = self.ax1.plot([], [], lw=2)
+        self.fig1.tight_layout()
         self.current_frame = 0
         self.stream = sd.OutputStream(samplerate=self.SampleRate, channels=1, dtype='int16')
         self.stream.start()
