@@ -10,6 +10,7 @@ if __name__ == "__main__":
     ui = Ui_Wizualizator_audio()
     ui.setupUi(Wizualizator_audio)
     appService = AppFunctionService(ui)
+    app.aboutToQuit.connect(appService.AppShutdown)
     ui.openFileBTN.clicked.connect(appService.readFile)
     ui.StartBTN.clicked.connect(appService.visualizeAndPlayAudio)
     ui.PRBTN.clicked.connect(appService.PauseButtonClicked)
