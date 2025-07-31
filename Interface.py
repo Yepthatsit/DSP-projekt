@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'audio_visualizerbFYcaC.ui'
+## Form generated from reading UI file 'audio_visualizervdHahY.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.1
 ##
@@ -16,35 +16,47 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QTextBrowser, QWidget)
+    QSizePolicy, QStatusBar, QTabWidget, QTextBrowser,
+    QWidget)
+
+from pyqtgraph import PlotWidget
 
 class Ui_Wizualizator_audio(object):
     def setupUi(self, Wizualizator_audio):
         if not Wizualizator_audio.objectName():
             Wizualizator_audio.setObjectName(u"Wizualizator_audio")
-        Wizualizator_audio.resize(884, 109)
+        Wizualizator_audio.resize(1081, 711)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(Wizualizator_audio.sizePolicy().hasHeightForWidth())
+        Wizualizator_audio.setSizePolicy(sizePolicy)
         Wizualizator_audio.setAutoFillBackground(False)
-        self.centralwidget = QWidget(Wizualizator_audio)
-        self.centralwidget.setObjectName(u"centralwidget")
-        self.openFileBTN = QPushButton(self.centralwidget)
+        Wizualizator_audio.setTabShape(QTabWidget.TabShape.Rounded)
+        self.Graph1 = QWidget(Wizualizator_audio)
+        self.Graph1.setObjectName(u"Graph1")
+        self.openFileBTN = QPushButton(self.Graph1)
         self.openFileBTN.setObjectName(u"openFileBTN")
         self.openFileBTN.setGeometry(QRect(0, 10, 181, 31))
-        self.textBrowser = QTextBrowser(self.centralwidget)
+        self.textBrowser = QTextBrowser(self.Graph1)
         self.textBrowser.setObjectName(u"textBrowser")
         self.textBrowser.setGeometry(QRect(190, 10, 221, 31))
-        self.StartBTN = QPushButton(self.centralwidget)
+        self.StartBTN = QPushButton(self.Graph1)
         self.StartBTN.setObjectName(u"StartBTN")
         self.StartBTN.setGeometry(QRect(640, 0, 75, 24))
-        self.PRBTN = QPushButton(self.centralwidget)
+        self.PRBTN = QPushButton(self.Graph1)
         self.PRBTN.setObjectName(u"PRBTN")
         self.PRBTN.setGeometry(QRect(720, 0, 75, 24))
-        self.CancelBTN = QPushButton(self.centralwidget)
+        self.CancelBTN = QPushButton(self.Graph1)
         self.CancelBTN.setObjectName(u"CancelBTN")
         self.CancelBTN.setGeometry(QRect(800, 0, 75, 24))
-        Wizualizator_audio.setCentralWidget(self.centralwidget)
+        self.plotWidget = PlotWidget(self.Graph1)
+        self.plotWidget.setObjectName(u"plotWidget")
+        self.plotWidget.setGeometry(QRect(40, 150, 481, 471))
+        Wizualizator_audio.setCentralWidget(self.Graph1)
         self.menubar = QMenuBar(Wizualizator_audio)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 884, 33))
+        self.menubar.setGeometry(QRect(0, 0, 1081, 33))
         Wizualizator_audio.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(Wizualizator_audio)
         self.statusbar.setObjectName(u"statusbar")
