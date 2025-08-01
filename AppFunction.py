@@ -1,9 +1,8 @@
 import sounddevice as sd
 from PyQt6.QtWidgets import QFileDialog
 import audioread
-import matplotlib.pyplot as plt
-import matplotlib
-from matplotlib.animation import FuncAnimation
+import pyqtgraph as pg
+from PySide6.QtCore import Qt
 from Interface import Ui_Wizualizator_audio
 import numpy as np
 import threading
@@ -18,11 +17,10 @@ class AppFunctionService:
         self.frameSize = 1024 
         self.ui = ui
         self.paused = False
-        self.fig1 = plt.figure()
-        self.ax1 = self.fig1.add_subplot(111)
+        #self.fig1 = plt.figure()
+        #self.ax1 = self.fig1.add_subplot(111)
         self.numFramesPlottedInPlot1 = 100
         self.stream = None
-        self.playAudioChunkEvent = threading.Event()
         self.stopAudioThreadEvent = threading.Event()
         self.current_frame = 0
         self.audioThread = threading.Thread(target=self.playAudioChunk,daemon=True)
@@ -33,8 +31,6 @@ class AppFunctionService:
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()
-        if hasattr(self, 'fig1') and self.fig1 is not None:
-            plt.close(self.fig1)
         self.audioThread.join(timeout=0)
         
     
@@ -73,22 +69,20 @@ class AppFunctionService:
     def animateAndPlayAudio(self, i):
         start_time = time.perf_counter()
         if not self.audio_data.any():
-            return self.line1,
+            return 
         if i == 0:
             global x
             global y
             x = list(self.time_axis[:self.numFramesPlottedInPlot1*self.frameSize:10])
             y = list(self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:10])
-            self.line1.set_data(x, y)
+            self.line1.setData(x, y)
             self.current_frame = self.numFramesPlottedInPlot1 * self.frameSize
             global max_points
             max_points = int(self.numFramesPlottedInPlot1 * self.frameSize / 10)
-            return self.line1,
+            return
         start = self.current_frame
         end = start + self.frameSize
         if end >= len(self.audio_data):
-            self.anim.event_source.stop()
-            self.playAudioChunkEvent.clear()  # Clear the event if end of audio data is reached
             self.stream.stop()
             self.stream.close()
             print("End of audio data reached.")
@@ -105,13 +99,11 @@ class AppFunctionService:
             self.audioQueue.put_nowait(chunk_data)
         except:
             pass
-        self.line1.set_data(x, y)
-        self.ax1.set_xlim(x[0], x[-1])
         self.current_frame += self.frameSize
         end_time = time.perf_counter()
         frame_time_ms = (end_time - start_time) * 1000
         print(f"Frame render time: {frame_time_ms:.2f} ms")
-        return self.line1,
+        return 
             
     def PauseButtonClicked(self):
         self.paused = not self.paused
@@ -134,9 +126,6 @@ class AppFunctionService:
             print("Playback resumed.")
             
     def visualizeAndPlayAudio(self):
-        matplotlib.use("QtAgg")
-        matplotlib.rcParams['toolbar'] = 'None'
-        
         if not self.SelectedFilePath:
             print("No file selected. Please select a file first.")
             return
@@ -145,20 +134,13 @@ class AppFunctionService:
             return
         self.paused = False
         self.ui.PRBTN.setText("Pauza")
-        if(self.fig1 is not None):
-            plt.close(self.fig1)
-        self.fig1 = plt.figure()
-        self.ax1 = self.fig1.add_subplot(111)
-        self.ax1.set_xlabel('Time [s]')
-        self.ax1.set_ylabel('Amplitude')
-        self.ax1.set_title('Audio Signal Visualization')
-        self.ax1.set_xlim(0, len(self.audio_data) / self.SampleRate)
-        self.ax1.set_ylim(np.min(self.audio_data), np.max(self.audio_data))
-        self.ax1.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
-        self.line1, = self.ax1.plot([], [], lw=2)
-        self.fig1.tight_layout()
-        self.current_frame = 0
-        self.stream = sd.OutputStream(samplerate=self.SampleRate,blocksize=self.frameSize, channels=1, dtype='int16')
+        self.ui.plotWidget.clear()
+        self.line1 = self.ui.plotWidget.plot(pen='r')
+        self.ui.plotWidget.setLabel('left', 'Amplitude')
+        self.ui.plotWidget.setLabel('bottom', 'Time (s)')
+        self.ui.plotWidget.setTitle('Audio waveform')
+        self.ui.plotWidget.showGrid(x=True, y=True)
+        self.ui.plotWidget.setMouseEnabled(x=False, y=False)
+        self.stream = sd.OutputStream(samplerate=self.SampleRate, blocksize=self.frameSize, channels=1, dtype='int16')
         self.stream.start()
-        self.anim = FuncAnimation(self.fig1, self.animateAndPlayAudio, interval=self.frameSize*1000/ self.SampleRate, blit=True)#w ms
-        self.fig1.show()
+        self.animateAndPlayAudio(0)
