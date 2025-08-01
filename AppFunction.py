@@ -144,3 +144,22 @@ class AppFunctionService:
         self.stream = sd.OutputStream(samplerate=self.SampleRate, blocksize=self.frameSize, channels=1, dtype='int16')
         self.stream.start()
         self.animateAndPlayAudio(0)
+        self.ui.StartBTN.setEnabled(False)
+        #self.ui.StartBTN.setDown(True)
+        self.ui.openFileBTN.setEnabled(False)
+        self.ui.CancelBTN.setEnabled(True)
+        self.ui.PRBTN.setEnabled(True)
+        
+    def CancelButtonClicked(self):
+        self.stopAudioThreadEvent.set()
+        if self.stream is not None:
+            self.stream.stop()
+            self.stream.close()
+        self.ui.StartBTN.setEnabled(True)
+        self.ui.openFileBTN.setEnabled(True)
+        self.ui.CancelBTN.setEnabled(False)
+        self.ui.CancelBTN.setDown(False)
+        self.ui.plotWidget.clear()
+        self.ui.PRBTN.setEnabled(False)
+        self.ui.PRBTN.setText("Pauza")
+        print("Playback cancelled.")

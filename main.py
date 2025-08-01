@@ -14,5 +14,6 @@ if __name__ == "__main__":
     ui.openFileBTN.clicked.connect(appService.readFile)
     ui.StartBTN.clicked.connect(appService.visualizeAndPlayAudio)
     ui.PRBTN.clicked.connect(appService.PauseButtonClicked)
+    ui.CancelBTN.clicked.connect(appService.CancelButtonClicked)
     Wizualizator_audio.show()
     sys.exit(app.exec())
