@@ -22,9 +22,12 @@ class AppFunctionService:
         self.numFramesPlottedInPlot1 = 100
         self.stream = None
         self.stopAudioThreadEvent = threading.Event()
+        self.CancelEvent = threading.Event()
+        self.StartEvent = threading.Event()
         self.current_frame = 0
         self.audioThread = threading.Thread(target=self.playAudioChunk,daemon=True)
         self.audioThread.start()
+        self.Anim1Thread = threading.Thread(target=self.animateAndPlayAudio, args=(0,), daemon=True)
         self.audioQueue = queue.Queue()
     
     def AppShutdown(self):
@@ -32,6 +35,7 @@ class AppFunctionService:
             self.stream.stop()
             self.stream.close()
         self.audioThread.join(timeout=0)
+        self.Anim1Thread.join(timeout=0)
         
     
     def readFile(self):
@@ -66,45 +70,20 @@ class AppFunctionService:
                 self.stream.write(data)
             except:
                 continue  # no data available yet
-    def animateAndPlayAudio(self, i):
-        start_time = time.perf_counter()
-        if not self.audio_data.any():
-            return 
-        if i == 0:
-            global x
-            global y
-            x = list(self.time_axis[:self.numFramesPlottedInPlot1*self.frameSize:10])
-            y = list(self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:10])
-            self.line1.setData(x, y)
-            self.current_frame = self.numFramesPlottedInPlot1 * self.frameSize
-            global max_points
-            max_points = int(self.numFramesPlottedInPlot1 * self.frameSize / 10)
-            return
-        start = self.current_frame
-        end = start + self.frameSize
-        if end >= len(self.audio_data):
-            self.stream.stop()
-            self.stream.close()
-            print("End of audio data reached.")
-        chunk_data = self.audio_data[start:end]
-        chunk_time = self.time_axis[start:end]
-        x.extend(list(chunk_time[::10]))
-        y.extend(list(chunk_data[::10]))
-        x = x[-max_points:]  
-        y = y[-max_points:]  
-        
-        #sd.play(chunk_data[-self.frameSize:], self.SampleRate)
-        #self.stream.write(chunk_data[-self.frameSize:])
+    def animateAndPlayAudio(self):
+        #if not self.audio_data.any():
+        #    return 
+        chunk_data = self.audio_data[self.current_frame:self.current_frame + self.numFramesPlottedInPlot1*self.frameSize]
         try:
-            self.audioQueue.put_nowait(chunk_data)
+            if self.current_frame == 0:
+                self.audioQueue.put_nowait(chunk_data)
+            else:
+                self.audioQueue.put_nowait(chunk_data[-self.frameSize:])  # only send the last frame size chunk
         except:
             pass
         self.current_frame += self.frameSize
-        end_time = time.perf_counter()
-        frame_time_ms = (end_time - start_time) * 1000
-        print(f"Frame render time: {frame_time_ms:.2f} ms")
-        return 
-            
+        
+        
     def PauseButtonClicked(self):
         self.paused = not self.paused
         if not hasattr(self, 'anim'):
