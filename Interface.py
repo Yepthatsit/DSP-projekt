@@ -70,7 +70,7 @@ class Ui_Wizualizator_audio(object):
     def retranslateUi(self, Wizualizator_audio):
         Wizualizator_audio.setWindowTitle(QCoreApplication.translate("Wizualizator_audio", u"Wizualizator audio", None))
 #if QT_CONFIG(tooltip)
-        Wizualizator_audio.setToolTip(QCoreApplication.translate("Wizualizator_audio", u"otwiera dialog pozwalaj\u0105cy na wybranie pliku audio", None))
+        #Wizualizator_audio.setToolTip(QCoreApplication.translate("Wizualizator_audio", u"otwiera dialog pozwalaj\u0105cy na wybranie pliku audio", None))
 #endif // QT_CONFIG(tooltip)
         self.openFileBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"otw\u00f3rz plik audio", None))
         self.textBrowser.setHtml(QCoreApplication.translate("Wizualizator_audio", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -82,7 +82,7 @@ class Ui_Wizualizator_audio(object):
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Otwarty plik: brak</p></body></html>", None))
         self.StartBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Start", None))
-        self.PRBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Stop", None))
-        self.CancelBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Anuluj", None))
+        self.PRBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Pauza", None))
+        self.CancelBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"Stop", None))
     # retranslateUi
 
