@@ -2,7 +2,7 @@ import sounddevice as sd
 from PyQt6.QtWidgets import QFileDialog
 import audioread
 import pyqtgraph as pg
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt,Signal
 from Interface import Ui_Wizualizator_audio
 import numpy as np
 import threading
@@ -30,7 +30,8 @@ class AppFunctionService:
         self.Anim1Thread = threading.Thread(target=self.animateAndPlayAudio, daemon=True)
         self.Anim1Thread.start()
         self.audioQueue = queue.Queue()
-        self.line1 = self.ui.plotWidget.plot(pen='r')
+        self.line1 = self.ui.line1
+        self.signals = self.ui.signals
     
     def AppShutdown(self):
         if self.stream is not None:
@@ -97,19 +98,23 @@ class AppFunctionService:
             rawChunk = self.audio_data[self.current_frame:self.current_frame + self.frameSize]
             newTimeChunk = self.time_axis[self.current_frame:self.current_frame + self.frameSize:skipData]
             newChunk = rawChunk[::skipData]
-            self.x.extend(newTimeChunk)
-            self.y.extend(newChunk)
-            self.x = self.x[-display_len:]
-            self.y = self.y[-display_len:]
             try:
                 self.audioQueue.put_nowait(rawChunk)  # send new audio chunk to the queue
             except:
                 pass
-            self.line1.setData(self.x, self.y)
+            self.x.extend(newTimeChunk)
+            self.y.extend(newChunk)
+            self.x = self.x[-display_len:]
+            self.y = self.y[-display_len:]
+            self.ui.signals.UpdateGraphSignal.emit(self.x, self.y)  # emit signal to update the graph
+           #line set data maight have to be done in the main thread
+            #self.line1.setData(self.x, self.y)
+            #self.UpdateGraphSignal.emit()
             self.current_frame += self.frameSize
             if self.current_frame + self.frameSize >=len(self.audio_data) or self.CancelEvent.is_set():
                 self.StartEvent.clear()
                 self.CancelEvent.clear()
+                #self.CancelButtonClicked()
             while time.time() - start < self.frameSize / self.SampleRate - 0.001:  
                 time.sleep(0.001)  # wait until the next frame is ready or cancelled
         
@@ -146,6 +151,7 @@ class AppFunctionService:
         self.stopAudioThreadEvent.clear()
         self.CancelEvent.clear()
         self.ui.PRBTN.setText("Pauza")
+        #self.x = self.y = []
         self.line1.clear()
         self.ui.plotWidget.setYRange(min(self.audio_data), max(self.audio_data), padding=0)
         self.ui.plotWidget.setLabel('left', 'Amplitude')

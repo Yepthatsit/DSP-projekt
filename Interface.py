@@ -10,7 +10,7 @@
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
+    QSize, QTime, QUrl, Qt,Signal)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
@@ -21,7 +21,24 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QMenuBar, QPushButton,
 
 from pyqtgraph import PlotWidget
 
+class communicationSignals(QObject):
+    """
+    This class defines the signals used for communication between threads.
+    """
+    UpdateGraphSignal = Signal(list, list)  # Signal to update the graph with new data
+
 class Ui_Wizualizator_audio(object):
+    def __init__(self):
+        self.signals = communicationSignals()
+        self.signals.UpdateGraphSignal.connect(self.updateGraph)
+    def updateGraph(self, x, y):
+        """
+        This method is called to update the graph in the UI.
+        It should be implemented in the main thread to ensure thread safety.
+        """
+        self.line1.setData(x, y)
+        pass
+    
     def setupUi(self, Wizualizator_audio):
         if not Wizualizator_audio.objectName():
             Wizualizator_audio.setObjectName(u"Wizualizator_audio")
@@ -53,6 +70,7 @@ class Ui_Wizualizator_audio(object):
         self.plotWidget = PlotWidget(self.Graph1)
         self.plotWidget.setObjectName(u"plotWidget")
         self.plotWidget.setGeometry(QRect(40, 150, 481, 471))
+        self.line1 = self.plotWidget.plot(pen='r')
         Wizualizator_audio.setCentralWidget(self.Graph1)
         self.menubar = QMenuBar(Wizualizator_audio)
         self.menubar.setObjectName(u"menubar")
