@@ -115,7 +115,7 @@ class AppFunctionService:
                 self.StartEvent.clear()
                 self.CancelEvent.clear()
                 #self.CancelButtonClicked()
-            while time.time() - start < self.frameSize / self.SampleRate - 10/self.SampleRate:  
+            while time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate:  
                 time.sleep(0.001)  # wait until the next frame is ready or cancelled
         
         
