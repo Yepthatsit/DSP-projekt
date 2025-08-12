@@ -105,7 +105,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>150</y>
+      <y>140</y>
+      <width>481</width>
+      <height>471</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="PlotWidget" name="plotWidget_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>140</y>
       <width>481</width>
       <height>471</height>
      </rect>
