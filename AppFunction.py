@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QFileDialog
 import audioread
 import pyqtgraph as pg
 from PySide6.QtCore import Qt,Signal
+from scipy.fft import fft,fftfreq
 from Interface import Ui_Wizualizator_audio
 import numpy as np
 import threading
@@ -32,6 +33,41 @@ class AppFunctionService:
         self.audioQueue = queue.Queue()
         self.line1 = self.ui.line1
         self.signals = self.ui.signals
+        self.bands = [
+                        (11.1, 12.5, 14.0),
+                        (14.3, 16.0, 18.0),
+                        (17.8, 20.0, 22.4),
+                        (22.3, 25.0, 28.1),
+                        (28.1, 31.5, 35.4),
+                        (35.6, 40.0, 44.9),
+                        (44.5, 50.0, 56.1),
+                        (56.1, 63.0, 70.7),
+                        (71.3, 80.0, 89.8),
+                        (89.1, 100.0, 112.2),
+                        (111.4, 125.0, 140.3),
+                        (142.5, 160.0, 179.6),
+                        (178.2, 200.0, 224.5),
+                        (222.7, 250.0, 280.6),
+                        (280.6, 315.0, 353.6),
+                        (356.4, 400.0, 449.0),
+                        (445.4, 500.0, 561.2),
+                        (561.3, 630.0, 707.2),
+                        (712.7, 800.0, 898.0),
+                        (890.9, 1000.0, 1122.5),
+                        (1113.6, 1250.0, 1403.1),
+                        (1425.4, 1600.0, 1795.9),
+                        (1781.8, 2000.0, 2244.9),
+                        (2227.2, 2500.0, 2806.2),
+                        (2806.3, 3150.0, 3535.8),
+                        (3563.6, 4000.0, 4489.8),
+                        (4454.5, 5000.0, 5612.3),
+                        (5612.7, 6300.0, 7071.5),
+                        (7127.2, 8000.0, 8979.7),
+                        (8909.0, 10000.0, 11224.6),
+                        (11136.2, 12500.0, 14030.8),
+                        (14254.4, 16000.0, 17959.4),
+                        (17818.0, 20000.0, 22449.2)
+                    ]
     
     def AppShutdown(self):
         if self.stream is not None:
@@ -94,6 +130,7 @@ class AppFunctionService:
                 self.current_frame += self.frameSize*self.numFramesPlottedInPlot1
                 self.y = list(self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:skipData])
                 self.x = list(self.time_axis[:self.numFramesPlottedInPlot1*self.frameSize:skipData])
+                freq, amp = fftfreq(len(self.y), 1/self.SampleRate),fft(self.y)
                 self.current_frame = self.numFramesPlottedInPlot1*self.frameSize
             rawChunk = self.audio_data[self.current_frame:self.current_frame + self.frameSize]
             newTimeChunk = self.time_axis[self.current_frame:self.current_frame + self.frameSize:skipData]
