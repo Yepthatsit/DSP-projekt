@@ -4,6 +4,7 @@ import audioread
 import pyqtgraph as pg
 from PySide6.QtCore import Qt,Signal
 from scipy.fft import fft,fftfreq
+from scipy.signal import iirfilter,lfilter
 from Interface import Ui_Wizualizator_audio
 import numpy as np
 import threading
@@ -96,6 +97,10 @@ class AppFunctionService:
                     self.channels = audio_file.channels
                     self.audio_data = np.frombuffer(FileBytes, dtype=np.int16)
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
+                self.filters = []
+                for band in self.bands:
+                    b,a = iirfilter(4, band, btype='band', ftype='butter', fs=self.SampleRate)
+                    self.filters.append((b, a))
             elif(filepath.endswith('.mp3')):
                 print("MP3 files are not supported yet.")
             if(self.ui):
