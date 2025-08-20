@@ -1,12 +1,13 @@
-import sounddevice as sd
 from PyQt6.QtWidgets import QFileDialog
-import audioread
-import pyqtgraph as pg
 from PySide6.QtCore import Qt,Signal
 from scipy.fft import fft,fftfreq
 from scipy.signal import iirfilter,lfilter
 from Interface import Ui_Wizualizator_audio
+import sounddevice as sd
+import pyqtgraph as pg
 import numpy as np
+import audioread
+import numba
 import threading
 import queue
 import time
@@ -24,13 +25,16 @@ class AppFunctionService:
         self.numFramesPlottedInPlot1 = 100
         self.stream = None
         self.stopAudioThreadEvent = threading.Event()
-        self.CancelEvent = threading.Event()
+        # self.CancelEvent = threading.Event()
         self.StartEvent = threading.Event()
+        self.LevelsEavent = threading.Event()
         self.current_frame = 0
         self.audioThread = threading.Thread(target=self.playAudioChunk,daemon=True)
         self.audioThread.start()
         self.Anim1Thread = threading.Thread(target=self.animateAndPlayAudio, daemon=True)
         self.Anim1Thread.start()
+        self.Anim2Thread = threading.Thread(target=self.CalculateLevelsThread ,daemon=True)
+        self.Anim2Thread.start()
         self.audioQueue = queue.Queue()
         self.line1 = self.ui.line1
         self.signals = self.ui.signals
@@ -67,8 +71,9 @@ class AppFunctionService:
                         (8909.0, 10000.0, 11224.6),
                         (11136.2, 12500.0, 14030.8),
                         (14254.4, 16000.0, 17959.4),
-                        (17818.0, 20000.0, 22449.2)
+                        (17818.0, 20000.0, 22000.0)
                     ]
+        self.levels = []
     
     def AppShutdown(self):
         if self.stream is not None:
@@ -76,7 +81,20 @@ class AppFunctionService:
             self.stream.close()
         self.audioThread.join(timeout=0)
         self.Anim1Thread.join(timeout=0)
-        
+        self.Anim2Thread.join(timeout=0)
+    
+    def CalculateLevelsThread(self):
+        while True:
+            if not self.LevelsEavent.is_set():
+                self.LevelsEavent.wait()
+            if(self.current_frame == 0):
+                FirstChunk = self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize]
+            for fil in self.filters:
+                pass
+                
+            self.LevelsEavent.clear()
+                
+            
     
     def readFile(self):
         print("Reading file...")
@@ -118,9 +136,7 @@ class AppFunctionService:
                     continue  # no data available yet
             time.sleep(0.01)  # avoid busy waiting
     def animateAndPlayAudio(self):
-        #https://stackoverflow.com/questions/64307813/pyqtgraph-stops-updating-and-freezes-when-grapahing-live-sensor-data
-        #if not self.audio_data.any():
-        #    return 
+        #https://stackoverflow.com/questions/64307813/pyqtgraph-stops-updating-and-freezes-when-grapahing-live-sensor-data 
         skipData = 10
         capacity = self.frameSize * self.numFramesPlottedInPlot1
         display_len = capacity // skipData
@@ -132,10 +148,9 @@ class AppFunctionService:
                 time.sleep(0.01)
             if self.current_frame == 0:
                 #self.audioQueue.put_nowait(chunk_data)
-                self.current_frame += self.frameSize*self.numFramesPlottedInPlot1
                 self.y = list(self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:skipData])
                 self.x = list(self.time_axis[:self.numFramesPlottedInPlot1*self.frameSize:skipData])
-                freq, amp = fftfreq(len(self.y), 1/self.SampleRate),fft(self.y)
+                #freq, amp = fftfreq(len(self.y), 1/self.SampleRate),fft(self.y)
                 self.current_frame = self.numFramesPlottedInPlot1*self.frameSize
             rawChunk = self.audio_data[self.current_frame:self.current_frame + self.frameSize]
             newTimeChunk = self.time_axis[self.current_frame:self.current_frame + self.frameSize:skipData]
@@ -159,8 +174,7 @@ class AppFunctionService:
                 #self.CancelButtonClicked()
             while time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate:  
                 time.sleep(0.001)  # wait until the next frame is ready or cancelled
-        
-        
+    
     def PauseButtonClicked(self):
         if not self.stopAudioThreadEvent.is_set():
             self.stopAudioThreadEvent.set()
