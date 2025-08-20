@@ -226,7 +226,6 @@ class AppFunctionService:
         self.ui.PRBTN.setEnabled(True)
         
     def CancelButtonClicked(self):
-        self.CancelEvent.set()
         self.StartEvent.clear()
         self.stopAudioThreadEvent.clear()
         if self.stream is not None:
