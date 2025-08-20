@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QFileDialog
 from PySide6.QtCore import Qt,Signal
 from scipy.fft import fft,fftfreq
-from scipy.signal import iirfilter,lfilter
+from scipy.signal import iirfilter,sosfilt,tf2sos
 from Interface import Ui_Wizualizator_audio
 import sounddevice as sd
 import pyqtgraph as pg
@@ -20,12 +20,10 @@ class AppFunctionService:
         self.frameSize = 1024 
         self.ui = ui
         self.paused = False
-        #self.fig1 = plt.figure()
-        #self.ax1 = self.fig1.add_subplot(111)
         self.numFramesPlottedInPlot1 = 100
         self.stream = None
         self.stopAudioThreadEvent = threading.Event()
-        # self.CancelEvent = threading.Event()
+        self.CancelEvent = threading.Event()
         self.StartEvent = threading.Event()
         self.LevelsEavent = threading.Event()
         self.current_frame = 0
@@ -84,14 +82,19 @@ class AppFunctionService:
         self.Anim2Thread.join(timeout=0)
     
     def CalculateLevelsThread(self):
+        skipData = 10
         while True:
             if not self.LevelsEavent.is_set():
                 self.LevelsEavent.wait()
-            if(self.current_frame == 0):
-                FirstChunk = self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize]
-            for fil in self.filters:
-                pass
-                
+            start = time.time()
+            
+            levels = np.empty(len(self.filters), dtype=np.float64)
+            Chunk = self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:skipData]
+            for i, fil in enumerate(self.filters):
+                filtered = sosfilt(fil, Chunk)
+                levels[i] = np.mean(filtered * filtered)
+            print(f"{time.time() - start} {time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate}")
+            
             self.LevelsEavent.clear()
                 
             
@@ -117,8 +120,8 @@ class AppFunctionService:
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
                 self.filters = []
                 for band in self.bands:
-                    b,a = iirfilter(4, band, btype='band', ftype='butter', fs=self.SampleRate)
-                    self.filters.append((b, a))
+                    sos = iirfilter(4, band, btype='band', ftype='butter',output = 'sos', fs=self.SampleRate)
+                    self.filters.append(sos)
             elif(filepath.endswith('.mp3')):
                 print("MP3 files are not supported yet.")
             if(self.ui):
@@ -148,9 +151,13 @@ class AppFunctionService:
                 time.sleep(0.01)
             if self.current_frame == 0:
                 #self.audioQueue.put_nowait(chunk_data)
+                self.LevelsEavent.set()
+                
                 self.y = list(self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:skipData])
                 self.x = list(self.time_axis[:self.numFramesPlottedInPlot1*self.frameSize:skipData])
                 #freq, amp = fftfreq(len(self.y), 1/self.SampleRate),fft(self.y)
+                while self.LevelsEavent.is_set():
+                    time.sleep(0.001)
                 self.current_frame = self.numFramesPlottedInPlot1*self.frameSize
             rawChunk = self.audio_data[self.current_frame:self.current_frame + self.frameSize]
             newTimeChunk = self.time_axis[self.current_frame:self.current_frame + self.frameSize:skipData]
@@ -159,6 +166,7 @@ class AppFunctionService:
                 self.audioQueue.put_nowait(rawChunk)  # send new audio chunk to the queue
             except:
                 pass
+            self.LevelsEavent.set()
             self.x.extend(newTimeChunk)
             self.y.extend(newChunk)
             self.x = self.x[-display_len:]
