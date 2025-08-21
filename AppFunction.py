@@ -82,19 +82,18 @@ class AppFunctionService:
         self.Anim2Thread.join(timeout=0)
     
     def CalculateLevelsThread(self):
-        skipData = 10
         while True:
             if not self.LevelsEavent.is_set():
                 self.LevelsEavent.wait()
-            start = time.time()
+            #start = time.time()
             
             levels = np.empty(len(self.filters), dtype=np.float64)
-            Chunk = self.audio_data[:self.numFramesPlottedInPlot1*self.frameSize:skipData]
+            Chunk = self.audio_data[self.current_frame: self.current_frame + self.numFramesPlottedInPlot1*self.frameSize]
             for i, fil in enumerate(self.filters):
                 filtered = sosfilt(fil, Chunk)
                 levels[i] = np.mean(filtered * filtered)
-            print(f"{time.time() - start} {time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate}")
-            
+            #print(f"{time.time() - start} {time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate}")
+            self.signals.UpdateLevels.emit(levels)
             self.LevelsEavent.clear()
                 
             
@@ -120,7 +119,7 @@ class AppFunctionService:
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
                 self.filters = []
                 for band in self.bands:
-                    sos = iirfilter(4, band, btype='band', ftype='butter',output = 'sos', fs=self.SampleRate)
+                    sos = iirfilter(4, [band[0], band[2]], btype='band', ftype='butter',output = 'sos', fs=self.SampleRate)
                     self.filters.append(sos)
             elif(filepath.endswith('.mp3')):
                 print("MP3 files are not supported yet.")
@@ -166,11 +165,11 @@ class AppFunctionService:
                 self.audioQueue.put_nowait(rawChunk)  # send new audio chunk to the queue
             except:
                 pass
-            self.LevelsEavent.set()
             self.x.extend(newTimeChunk)
             self.y.extend(newChunk)
             self.x = self.x[-display_len:]
             self.y = self.y[-display_len:]
+            self.LevelsEavent.set()
             self.ui.signals.UpdateGraphSignal.emit(self.x, self.y)  # emit signal to update the graph
            #line set data maight have to be done in the main thread
             #self.line1.setData(self.x, self.y)
@@ -180,7 +179,7 @@ class AppFunctionService:
                 self.StartEvent.clear()
                 self.CancelEvent.clear()
                 #self.CancelButtonClicked()
-            while time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate:  
+            while time.time() - start < self.frameSize / self.SampleRate - 60/self.SampleRate:  
                 time.sleep(0.001)  # wait until the next frame is ready or cancelled
     
     def PauseButtonClicked(self):
@@ -223,6 +222,7 @@ class AppFunctionService:
         self.ui.plotWidget.setTitle('Audio waveform')
         #self.ui.plotWidget.showGrid(x=True, y=True)
         self.ui.plotWidget.setMouseEnabled(x=False, y=False)
+        self.ui.plotWidget_2.setMouseEnabled(x=False, y=False)
         self.current_frame = 0
         self.stream = sd.OutputStream(samplerate=self.SampleRate,channels=1, dtype='int16')
         self.stream.start()

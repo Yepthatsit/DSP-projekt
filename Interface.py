@@ -18,19 +18,23 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QMainWindow, QMenuBar, QPushButton,
     QSizePolicy, QStatusBar, QTabWidget, QTextBrowser,
     QWidget)
-
-from pyqtgraph import PlotWidget
+import numpy as np
+from pyqtgraph import PlotWidget,BarGraphItem
 
 class communicationSignals(QObject):
     """
     This class defines the signals used for communication between threads.
     """
     UpdateGraphSignal = Signal(list, list)  # Signal to update the graph with new data
+    UpdateLevels = Signal(list)
 
 class Ui_Wizualizator_audio(object):
     def __init__(self):
         self.signals = communicationSignals()
         self.signals.UpdateGraphSignal.connect(self.updateGraph)
+        self.signals.UpdateLevels.connect(self.updateHist)
+        self.x = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0, 160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 8000.0, 10000.0, 12500.0, 16000.0, 20000.0,22000]
+
     def updateGraph(self, x, y):
         """
         This method is called to update the graph in the UI.
@@ -38,7 +42,9 @@ class Ui_Wizualizator_audio(object):
         """
         self.line1.setData(x, y)
         pass
-    
+    def updateHist(self,heights):
+        self.hist.setData(self.x,heights)
+        #print(heights)
     def setupUi(self, Wizualizator_audio):
         if not Wizualizator_audio.objectName():
             Wizualizator_audio.setObjectName(u"Wizualizator_audio")
@@ -74,6 +80,7 @@ class Ui_Wizualizator_audio(object):
         self.plotWidget_2 = PlotWidget(self.Graph1)
         self.plotWidget_2.setObjectName(u"plotWidget_2")
         self.plotWidget_2.setGeometry(QRect(560, 150, 481, 471))
+        self.hist = self.plotWidget_2.plot(stepMode=True)
         Wizualizator_audio.setCentralWidget(self.Graph1)
         self.menubar = QMenuBar(Wizualizator_audio)
         self.menubar.setObjectName(u"menubar")
