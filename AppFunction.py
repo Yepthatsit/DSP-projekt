@@ -91,7 +91,7 @@ class AppFunctionService:
             Chunk = self.audio_data[self.current_frame: self.current_frame + self.numFramesPlottedInPlot1*self.frameSize]
             for i, fil in enumerate(self.filters):
                 filtered = sosfilt(fil, Chunk)
-                levels[i] = np.mean(filtered * filtered)
+                levels[i] = 20 * np.log10(np.mean(filtered **2) + 1e-12)
             #print(f"{time.time() - start} {time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate}")
             self.signals.UpdateLevels.emit(levels)
             self.LevelsEavent.clear()
@@ -179,7 +179,7 @@ class AppFunctionService:
                 self.StartEvent.clear()
                 self.CancelEvent.clear()
                 #self.CancelButtonClicked()
-            while time.time() - start < self.frameSize / self.SampleRate - 60/self.SampleRate:  
+            while time.time() - start < self.frameSize / self.SampleRate - 55/self.SampleRate:  
                 time.sleep(0.001)  # wait until the next frame is ready or cancelled
     
     def PauseButtonClicked(self):
