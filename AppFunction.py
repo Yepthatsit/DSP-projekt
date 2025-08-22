@@ -91,8 +91,8 @@ class AppFunctionService:
             Chunk = self.audio_data[self.current_frame: self.current_frame + self.numFramesPlottedInPlot1*self.frameSize]
             for i, fil in enumerate(self.filters):
                 filtered = sosfilt(fil, Chunk)
-                levels[i] = 20 * np.log10(np.mean(filtered **2) + 1e-12)
-            #print(f"{time.time() - start} {time.time() - start < self.frameSize / self.SampleRate - 50/self.SampleRate}")
+                #levels[i] = 20 * np.log10(np.mean(filtered **2) + 1e-12)
+                levels[i] = np.mean(filtered **2)
             self.signals.UpdateLevels.emit(levels)
             self.LevelsEavent.clear()
                 
