@@ -72,6 +72,7 @@ class AppFunctionService:
                         (17818.0, 20000.0, 22000.0)
                     ]
         self.levels = []
+        self.ticks = [(v[1],None) for v in self.bands]
     
     def AppShutdown(self):
         if self.stream is not None:
@@ -92,7 +93,7 @@ class AppFunctionService:
             for i, fil in enumerate(self.filters):
                 filtered = sosfilt(fil, Chunk)
                 #levels[i] = 20 * np.log10(np.mean(filtered **2) + 1e-12)
-                levels[i] = np.mean(filtered **2)
+                levels[i] = np.sqrt(np.mean(filtered **2))
             self.signals.UpdateLevels.emit(levels)
             self.LevelsEavent.clear()
                 
@@ -223,6 +224,8 @@ class AppFunctionService:
         #self.ui.plotWidget.showGrid(x=True, y=True)
         self.ui.plotWidget.setMouseEnabled(x=False, y=False)
         self.ui.plotWidget_2.setMouseEnabled(x=False, y=False)
+        #self.ui.plotWidget_2.getAxis('bottom').setTicks([self.ticks])
+        self.ui.plotWidget_2.setLogMode(x=True, y=False)
         self.current_frame = 0
         self.stream = sd.OutputStream(samplerate=self.SampleRate,channels=1, dtype='int16')
         self.stream.start()
