@@ -27,6 +27,7 @@ class communicationSignals(QObject):
     """
     UpdateGraphSignal = Signal(list, list)  # Signal to update the graph with new data
     UpdateLevels = Signal(list)
+    StopPlaying = Signal()
 
 class Ui_Wizualizator_audio(object):
     def __init__(self):

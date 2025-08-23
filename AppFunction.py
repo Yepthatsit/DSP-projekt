@@ -12,6 +12,7 @@ import threading
 import queue
 import time
 
+
 class AppFunctionService:
     def __init__(self,ui:Ui_Wizualizator_audio = None):
         self.SelectedFilePath = ""
@@ -19,6 +20,7 @@ class AppFunctionService:
         self.audio_data = np.array([])
         self.frameSize = 1024 
         self.ui = ui
+        self.ui.signals.StopPlaying.connect(self.CancelButtonClicked)
         self.paused = False
         self.numFramesPlottedInPlot1 = 100
         self.stream = None
@@ -114,9 +116,17 @@ class AppFunctionService:
             if(filepath.endswith('.wav')):
                 with audioread.audio_open(filepath) as audio_file:
                     self.SampleRate = audio_file.samplerate
-                    FileBytes = bytes(int(2.5*self.numFramesPlottedInPlot1*self.frameSize)) + b''.join(audio_file.read_data(-1))
                     self.channels = audio_file.channels
-                    self.audio_data = np.frombuffer(FileBytes, dtype=np.int16)
+                    FileBytes = b''.join(audio_file.read_data(-1))
+                    print(self.channels)
+                    audio_array = np.frombuffer(FileBytes, dtype=np.int16)
+                    if self.channels > 1:
+                        num_zeros = int(1 * self.numFramesPlottedInPlot1 * self.frameSize)
+                        audio_array = audio_array.reshape(-1, self.channels)
+                        audio_array = np.vstack([np.zeros((num_zeros, self.channels), dtype=np.int16), audio_array,np.zeros((num_zeros, self.channels), dtype=np.int16)])
+                        self.audio_data = audio_array.mean(axis=1).astype(np.int16)
+                    else:
+                        self.audio_data = self.audio_dataraw  # already mono
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
                 self.filters = []
                 for band in self.bands:
@@ -178,9 +188,12 @@ class AppFunctionService:
             self.current_frame += self.frameSize
             if self.current_frame + self.frameSize >=len(self.audio_data) or self.CancelEvent.is_set():
                 self.StartEvent.clear()
+                if(not self.CancelEvent.is_set()):
+                    self.ui.signals.StopPlaying.emit()
                 self.CancelEvent.clear()
+                
                 #self.CancelButtonClicked()
-            while time.time() - start < self.frameSize / self.SampleRate - 55/self.SampleRate:  
+            while time.time() - start < self.frameSize / self.SampleRate - 64/self.SampleRate:  
                 time.sleep(0.001)  # wait until the next frame is ready or cancelled
     
     def PauseButtonClicked(self):
@@ -224,8 +237,8 @@ class AppFunctionService:
         #self.ui.plotWidget.showGrid(x=True, y=True)
         self.ui.plotWidget.setMouseEnabled(x=False, y=False)
         self.ui.plotWidget_2.setMouseEnabled(x=False, y=False)
-        #self.ui.plotWidget_2.getAxis('bottom').setTicks([self.ticks])
         self.ui.plotWidget_2.setLogMode(x=True, y=False)
+        #self.ui.plotWidget_2.getAxis('bottom').setTicks(self.ticks)
         self.current_frame = 0
         self.stream = sd.OutputStream(samplerate=self.SampleRate,channels=1, dtype='int16')
         self.stream.start()
