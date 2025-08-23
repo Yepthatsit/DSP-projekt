@@ -99,7 +99,7 @@ class Ui_Wizualizator_audio(object):
     def retranslateUi(self, Wizualizator_audio):
         Wizualizator_audio.setWindowTitle(QCoreApplication.translate("Wizualizator_audio", u"Wizualizator audio", None))
 #if QT_CONFIG(tooltip)
-        Wizualizator_audio.setToolTip(QCoreApplication.translate("Wizualizator_audio", u"otwiera dialog pozwalaj\u0105cy na wybranie pliku audio", None))
+        #Wizualizator_audio.setToolTip(QCoreApplication.translate("Wizualizator_audio", u"otwiera dialog pozwalaj\u0105cy na wybranie pliku audio", None))
 #endif // QT_CONFIG(tooltip)
         self.openFileBTN.setText(QCoreApplication.translate("Wizualizator_audio", u"otw\u00f3rz plik audio", None))
         self.textBrowser.setHtml(QCoreApplication.translate("Wizualizator_audio", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
