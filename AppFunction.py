@@ -74,7 +74,6 @@ class AppFunctionService:
                         (17818.0, 20000.0, 22000.0)
                     ]
         self.levels = []
-        self.ticks = [(v[1],None) for v in self.bands]
     
     def AppShutdown(self):
         if self.stream is not None:
