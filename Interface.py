@@ -49,7 +49,7 @@ class Ui_Wizualizator_audio(object):
     def setupUi(self, Wizualizator_audio):
         if not Wizualizator_audio.objectName():
             Wizualizator_audio.setObjectName(u"Wizualizator_audio")
-        Wizualizator_audio.resize(1081, 711)
+        Wizualizator_audio.setFixedSize(1081, 711)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
