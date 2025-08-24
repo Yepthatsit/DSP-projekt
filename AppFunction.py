@@ -22,7 +22,7 @@ class AppFunctionService:
         self.ui = ui
         self.ui.signals.StopPlaying.connect(self.CancelButtonClicked)
         self.paused = False
-        self.numFramesPlottedInPlot1 = 100
+        self.numFramesPlottedInPlot1 = 75
         self.stream = None
         self.stopAudioThreadEvent = threading.Event()
         self.CancelEvent = threading.Event()
