@@ -126,14 +126,15 @@ class AppFunctionService:
                         audio_array = np.vstack([np.zeros((num_zeros, self.channels), dtype=np.int16), audio_array,np.zeros((num_zeros, self.channels), dtype=np.int16)])
                         self.audio_data = audio_array.mean(axis=1).astype(np.int16)
                     else:
-                        self.audio_data = self.audio_dataraw  # already mono
+                        audio_array = np.vstack([np.zeros((num_zeros, self.channels), dtype=np.int16), audio_array,np.zeros((num_zeros, self.channels), dtype=np.int16)])
+                        self.audio_data = audio_array  # already mono
                     self.time_axis = np.linspace(0, len(self.audio_data) / self.SampleRate, num=len(self.audio_data))
-                self.filters = []
-                for band in self.bands:
-                    sos = iirfilter(4, [band[0], band[2]], btype='band', ftype='butter',output = 'sos', fs=self.SampleRate)
-                    self.filters.append(sos)
             elif(filepath.endswith('.mp3')):
                 print("MP3 files are not supported yet.")
+            self.filters = []
+            for band in self.bands:
+                sos = iirfilter(4, [band[0], band[2]], btype='band', ftype='butter',output = 'sos', fs=self.SampleRate)
+                self.filters.append(sos)
             if(self.ui):
                 self.ui.textBrowser.setText(f"Plik: {self.SelectedFilePath.split('/')[-1]}\n")
             print(f"File {self.SelectedFilePath} loaded with sample rate {self.SampleRate} Hz.")
