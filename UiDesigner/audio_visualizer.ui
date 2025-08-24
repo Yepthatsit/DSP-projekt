@@ -34,8 +34,8 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>181</width>
-      <height>31</height>
+      <width>231</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="text">
@@ -45,10 +45,10 @@
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>240</x>
       <y>10</y>
-      <width>221</width>
-      <height>31</height>
+      <width>251</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="html">
@@ -65,10 +65,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QPushButton" name="StartBTN">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>0</y>
-      <width>75</width>
-      <height>24</height>
+      <x>684</x>
+      <y>10</y>
+      <width>131</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="text">
@@ -78,10 +78,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QPushButton" name="PRBTN">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>0</y>
-      <width>75</width>
-      <height>24</height>
+      <x>824</x>
+      <y>10</y>
+      <width>121</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="text">
@@ -91,10 +91,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QPushButton" name="CancelBTN">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>0</y>
-      <width>75</width>
-      <height>24</height>
+      <x>954</x>
+      <y>10</y>
+      <width>121</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="text">
