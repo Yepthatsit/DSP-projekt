@@ -231,13 +231,14 @@ class AppFunctionService:
         #self.x = self.y = []
         self.line1.clear()
         self.ui.plotWidget.setYRange(min(self.audio_data), max(self.audio_data), padding=0)
-        self.ui.plotWidget.setLabel('left', 'Amplitude')
-        self.ui.plotWidget.setLabel('bottom', 'Time (s)')
-        self.ui.plotWidget.setTitle('Audio waveform')
+        self.ui.plotWidget.setLabel('left', 'Amplituda')
+        self.ui.plotWidget.setLabel('bottom', 'Czas (s)')
         #self.ui.plotWidget.showGrid(x=True, y=True)
         self.ui.plotWidget.setMouseEnabled(x=False, y=False)
         self.ui.plotWidget_2.setMouseEnabled(x=False, y=False)
         self.ui.plotWidget_2.setLogMode(x=True, y=False)
+        self.ui.plotWidget_2.setLabel('left', 'RMS sygnału')
+        self.ui.plotWidget_2.setLabel('bottom', 'Częstotliwość (Hz)')
         #self.ui.plotWidget_2.getAxis('bottom').setTicks(self.ticks)
         self.current_frame = 0
         self.stream = sd.OutputStream(samplerate=self.SampleRate,channels=1, dtype='int16')
