@@ -106,7 +106,7 @@ class AppFunctionService:
             None,
             "Wybierz plik audio",
             "",
-            "Pliki audio (*.wav *.mp3)"
+            "Pliki audio (*.wav)"
         )
         if filepath:
             self.SelectedFilePath = filepath
